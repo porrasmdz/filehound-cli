@@ -1,6 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/linux,windows,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,windows,python
-
+config.ini
+*.json
 ### Linux ###
 *~
 
