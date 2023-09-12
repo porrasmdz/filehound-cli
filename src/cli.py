@@ -1,11 +1,15 @@
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional
 import typer
-from src import __app_name__, __version__, config, database, ERRORS, models
+from src import __app_name__, __version__, config, database, ERRORS
 from src.utils.Logger import Logger
 import traceback
 
+#Commands
+import src.commands.users as users_cmd
+  
 app = typer.Typer()
+app.add_typer(users_cmd.app, name="users")
 
 @app.command()
 def init(
@@ -40,37 +44,13 @@ def init(
         typer.secho(message, fg=typer.colors.GREEN)
         Logger.add_to_log("info",message)
 
-def get_controller() -> models.UserModel.UserController:
-    if config.CONFIG_FILE_PATH.exists():
-        db_path = database.db.get_database_path()
-    else:
-        typer.secho(
-            'Config file not found. Please, run "rptodo init"',
-            fg=typer.colors.RED,
-        )
-        raise typer.Exit(1)
-    if db_path.exists():
-        return models.UserModel.UserController(db_path)
-    else:
-        typer.secho(
-            'Database not found. Please, run "rptodo init"',
-            fg=typer.colors.RED,
-        )
-        raise typer.Exit(1)
-
-@app.command()
-def add(
-    name: List[str]=typer.Argument(...),
-    age: int= typer.Option(..., "---age","-p", min=1, max=199),
-    username: str =typer.Option(...,"--username", "-u")
-) -> None:
-    usercontroller= get_controller()
-
 def _version_callback(value: bool) -> None:
     if value:
         typer.echo(f"{__app_name__} v{__version__}")
         Logger.add_to_log("info", "Checked cli version with --version")
         raise typer.Exit()
+    
+    Logger.add_to_log("info", "Executed general command")
     
 @app.callback()
 def main(

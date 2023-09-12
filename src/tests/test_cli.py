@@ -4,6 +4,7 @@ import pytest
 from typer.testing import CliRunner
 
 from src import __app_name__, __version__, cli, models,DB_READ_ERROR, SUCCESS
+from src.repositories.UserRepository import UserRepository
 
 runner = CliRunner()
 
@@ -14,10 +15,12 @@ def test_version():
 
 @pytest.fixture
 def mock_json_file(tmp_path):
-    user = [{"name": "Johan Silva", "age": 21, "username": "jsilva"}]
+    mock_database = {
+        "users": [{"name": "Johan Silva", "age": 21, "username": "jsilva"}]
+        }
     db_file = tmp_path / "user.json"
     with db_file.open("w") as db:
-        json.dump(user, db, indent=4)
+        json.dump(mock_database, db, indent=4)
     return db_file
 
 test_data1 = {
@@ -59,8 +62,9 @@ test_data2 = {
         ),
     ],
 )
+
 def test_add(mock_json_file, name, age, username,expected):
-    usercontroller = models.UserModel.UserController(mock_json_file)
-    assert usercontroller.add(name, age, username) == expected
-    read = usercontroller._db_handler.read_users()
-    assert len(read.user_list) == 2
+    user_repository = UserRepository(mock_json_file)
+    assert user_repository.add(name, age, username) == expected
+    read = user_repository._db_handler.read_model("users")
+    assert len(read.model_list) == 2
